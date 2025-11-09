@@ -178,6 +178,37 @@ function initUI() {
             }
         });
     }
+
+    // Control buttons
+    const resetButton = document.getElementById('resetButton');
+    const flowerButton = document.getElementById('flowerButton');
+    const hideButton = document.getElementById('hideButton');
+
+    resetButton.addEventListener('click', () => {
+        sequencer.reset();
+        console.log('Parameters reset');
+    });
+
+    flowerButton.addEventListener('click', () => {
+        visualEngine.setFlowerMode(!visualEngine.flowerMode);
+        flowerButton.classList.toggle('active', visualEngine.flowerMode);
+        console.log('Flower mode:', visualEngine.flowerMode ? 'ON' : 'OFF');
+    });
+
+    hideButton.addEventListener('click', () => {
+        uiHidden = !uiHidden;
+        const sequencerElement = document.getElementById('sequencer');
+        const controlsElement = document.getElementById('controls');
+
+        if (uiHidden) {
+            sequencerElement.classList.add('hidden');
+            controlsElement.classList.add('hidden');
+        } else {
+            sequencerElement.classList.remove('hidden');
+            controlsElement.classList.remove('hidden');
+        }
+        console.log('UI:', uiHidden ? 'HIDDEN' : 'VISIBLE');
+    });
 }
 
 // Keyboard controls

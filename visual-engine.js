@@ -8,10 +8,18 @@ class VisualEngine {
         this.hihatSineOffset = 0;
         this.flowerMode = false;
         this.globalBlur = 0;
+        this.isMobile = this.checkMobile();
 
         this.resize();
-        window.addEventListener('resize', () => this.resize());
+        window.addEventListener('resize', () => {
+            this.resize();
+            this.isMobile = this.checkMobile();
+        });
         this.animate();
+    }
+
+    checkMobile() {
+        return window.innerWidth <= 768;
     }
 
     resize() {
@@ -38,7 +46,7 @@ class VisualEngine {
         requestAnimationFrame(() => this.animate());
     }
 
-    // Kick effect - 10% flash, 90% square
+    // Kick effect - 10% flash, 90% square or flower
     triggerKick(distortion = 0) {
         const useFlash = Math.random() < 0.1; // 10% chance for flash
 
@@ -46,35 +54,53 @@ class VisualEngine {
             // Pattern 1: Full screen flash
             this.effects.push(new FlashEffect(this.canvas.width, this.canvas.height, distortion));
         } else {
-            // Pattern 2: Moving square (1.5x larger)
-            const size = Math.min(this.canvas.width, this.canvas.height) * 0.345; // 0.23 * 1.5
-            let x, y;
+            if (this.flowerMode) {
+                // Pattern 2a: Kick Flower (7 petals with elongated diamonds)
+                const x = Math.random() * this.canvas.width;
 
-            if (this.kickSquarePosition === 0) {
-                x = size / 2;
-                y = size / 2;
-            } else if (this.kickSquarePosition === 1) {
-                x = this.canvas.width - size / 2;
-                y = size / 2;
-            } else if (this.kickSquarePosition === 2) {
-                x = this.canvas.width - size / 2;
-                y = this.canvas.height - size / 2;
-            } else if (this.kickSquarePosition === 3) {
-                x = size / 2;
-                y = this.canvas.height - size / 2;
+                // Narrower Y range on mobile
+                let y;
+                if (this.isMobile) {
+                    const centerY = this.canvas.height / 2;
+                    const yRange = this.canvas.height * 0.4;
+                    y = centerY + (Math.random() - 0.5) * yRange;
+                } else {
+                    y = Math.random() * this.canvas.height;
+                }
+
+                const size = Math.min(this.canvas.width, this.canvas.height) * 0.3;
+                this.effects.push(new KickFlowerEffect(x, y, size, distortion));
             } else {
-                // Random (can overlap)
-                x = Math.random() * this.canvas.width;
-                y = Math.random() * this.canvas.height;
-            }
+                // Pattern 2b: Moving square (1.5x larger)
+                const size = Math.min(this.canvas.width, this.canvas.height) * 0.345; // 0.23 * 1.5
+                let x, y;
 
-            this.effects.push(new SquareEffect(x, y, size, distortion));
+                if (this.kickSquarePosition === 0) {
+                    x = size / 2;
+                    y = size / 2;
+                } else if (this.kickSquarePosition === 1) {
+                    x = this.canvas.width - size / 2;
+                    y = size / 2;
+                } else if (this.kickSquarePosition === 2) {
+                    x = this.canvas.width - size / 2;
+                    y = this.canvas.height - size / 2;
+                } else if (this.kickSquarePosition === 3) {
+                    x = size / 2;
+                    y = this.canvas.height - size / 2;
+                } else {
+                    // Random (can overlap)
+                    x = Math.random() * this.canvas.width;
+                    y = Math.random() * this.canvas.height;
+                }
 
-            // Update position
-            if (this.kickSquarePosition < 3) {
-                this.kickSquarePosition++;
-            } else {
-                this.kickSquarePosition = Math.floor(Math.random() * 10) + 4; // Random after sequence
+                this.effects.push(new SquareEffect(x, y, size, distortion));
+
+                // Update position
+                if (this.kickSquarePosition < 3) {
+                    this.kickSquarePosition++;
+                } else {
+                    this.kickSquarePosition = Math.floor(Math.random() * 10) + 4; // Random after sequence
+                }
             }
         }
     }
@@ -84,8 +110,9 @@ class VisualEngine {
         // Position near sequencer (center of screen)
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
-        const offsetX = (Math.random() - 0.5) * 200;
-        const offsetY = (Math.random() - 0.5) * 200;
+        const offsetRange = this.isMobile ? 100 : 200;
+        const offsetX = (Math.random() - 0.5) * offsetRange;
+        const offsetY = (Math.random() - 0.5) * (offsetRange * 0.5); // Narrower Y range
 
         this.effects.push(new RippleEffect(
             centerX + offsetX,
@@ -113,7 +140,16 @@ class VisualEngine {
     // Tom effect - Pyramid or Flower
     triggerTom(param = 5, pitchOffset = 0.5, blur = 0) {
         const x = Math.random() * this.canvas.width;
-        const y = Math.random() * this.canvas.height;
+
+        // Narrower Y range on mobile
+        let y;
+        if (this.isMobile) {
+            const centerY = this.canvas.height / 2;
+            const yRange = this.canvas.height * 0.4; // 40% of height centered
+            y = centerY + (Math.random() - 0.5) * yRange;
+        } else {
+            y = Math.random() * this.canvas.height;
+        }
 
         // Size based on param (10-40% of screen)
         const baseSize = Math.min(this.canvas.width, this.canvas.height);
@@ -501,6 +537,84 @@ class FlowerEffect {
         // Center (stroke only)
         ctx.beginPath();
         ctx.arc(0, 0, petalSize / 3, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+    isDead() {
+        return this.alpha <= 0;
+    }
+}
+
+class KickFlowerEffect {
+    constructor(x, y, size, distortion) {
+        this.x = x;
+        this.y = y;
+        this.size = size;
+        this.distortion = distortion;
+        this.alpha = 1;
+        this.life = 0;
+        this.rotation = Math.random() * Math.PI * 2;
+    }
+
+    update() {
+        this.life += 0.016;
+        this.alpha = Math.max(0, 1 - (this.life / 0.3));
+        this.rotation += 0.02;
+    }
+
+    render(ctx, globalBlur = 0) {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.globalAlpha = this.alpha;
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+
+        if (globalBlur > 0.1) {
+            ctx.shadowBlur = globalBlur * 2;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
+        }
+
+        // Draw 7-petal flower with elongated diamond shapes
+        const petals = 7;
+        const petalLength = this.size / 2;
+        const petalWidth = this.size / 6;
+
+        for (let i = 0; i < petals; i++) {
+            const angle = (i / petals) * Math.PI * 2;
+
+            if (this.distortion > 0.3) {
+                // Glitch effect: offset each petal
+                const glitchOffset = (Math.random() - 0.5) * 30 * this.distortion;
+                ctx.save();
+                ctx.rotate(glitchOffset * 0.01);
+            }
+
+            // Draw elongated diamond (rhombus)
+            ctx.beginPath();
+            ctx.save();
+            ctx.rotate(angle);
+
+            // Diamond vertices
+            ctx.moveTo(0, 0);
+            ctx.lineTo(petalWidth / 2, petalLength / 2);
+            ctx.lineTo(0, petalLength);
+            ctx.lineTo(-petalWidth / 2, petalLength / 2);
+            ctx.closePath();
+            ctx.stroke();
+
+            ctx.restore();
+
+            if (this.distortion > 0.3) {
+                ctx.restore();
+            }
+        }
+
+        // Center circle
+        ctx.beginPath();
+        ctx.arc(0, 0, this.size / 12, 0, Math.PI * 2);
         ctx.stroke();
 
         ctx.restore();

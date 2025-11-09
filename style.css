@@ -153,11 +153,11 @@ body {
 /* Parameters */
 .params {
     display: flex;
-    gap: 6px;
+    gap: 8px;
 }
 
 .param-input {
-    width: 28px;
+    width: 32px;
     height: 24px;
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -266,18 +266,35 @@ body {
     border-color: #fff;
 }
 
-/* Keyboard Hints */
-.keyboard-hints {
+/* Control Buttons */
+.control-buttons {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    font-size: 9px;
-    color: rgba(255, 255, 255, 0.5);
-    margin-top: 5px;
+    gap: 8px;
+    margin-top: 10px;
 }
 
-.keyboard-hints span {
-    text-align: center;
+.control-button {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Courier New', monospace;
+}
+
+.control-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.control-button.active {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: #fff;
 }
 
 /* BPM Input */
@@ -302,4 +319,108 @@ body {
 /* Hidden state */
 .hidden {
     display: none !important;
+}
+
+/* Responsive Design for Mobile */
+@media screen and (max-width: 768px) {
+    body {
+        overflow-y: auto;
+    }
+
+    #app {
+        padding: 10px;
+        overflow-y: auto;
+        justify-content: flex-start;
+    }
+
+    #sequencer {
+        padding: 15px;
+        margin-bottom: 15px;
+        width: 100%;
+    }
+
+    /* 16x1 to 8x2 layout for steps */
+    .steps {
+        flex-wrap: wrap;
+        max-width: calc(8 * 32px + 7 * 8px);
+    }
+
+    .step {
+        width: 32px;
+        height: 32px;
+    }
+
+    .params {
+        flex-wrap: wrap;
+        max-width: calc(8 * 32px + 7 * 8px);
+    }
+
+    .param-input {
+        width: 32px;
+    }
+
+    .instrument-row {
+        margin-bottom: 20px;
+    }
+
+    .instrument-label {
+        width: 60px;
+        font-size: 11px;
+    }
+
+    /* Volume knob smaller on mobile */
+    .volume-knob {
+        height: 80px;
+        width: 5px;
+    }
+
+    .volume-knob::-webkit-slider-thumb {
+        width: 15px;
+        height: 15px;
+    }
+
+    .volume-knob::-moz-range-thumb {
+        width: 15px;
+        height: 15px;
+    }
+
+    /* Controls below sequencer, wrapped in 2-3 columns */
+    #controls {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 15px;
+        gap: 15px;
+        width: 100%;
+    }
+
+    .control-group {
+        flex: 0 0 auto;
+        min-width: 120px;
+    }
+
+    .control-group label {
+        font-size: 9px;
+    }
+
+    .fader {
+        width: 120px;
+    }
+
+    .play-button {
+        padding: 10px 25px;
+        font-size: 13px;
+    }
+
+    .control-button {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+
+    .bpm-input {
+        width: 55px;
+        height: 26px;
+        font-size: 11px;
+    }
 }
