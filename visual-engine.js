@@ -151,7 +151,8 @@ class FlashEffect {
         ctx.save();
 
         if (globalBlur > 0.1) {
-            ctx.filter = `blur(${globalBlur}px)`;
+            ctx.shadowBlur = globalBlur * 2;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
         }
 
         if (this.distortion > 0.3) {
@@ -200,7 +201,8 @@ class SquareEffect {
         ctx.lineWidth = 10;
 
         if (globalBlur > 0.1) {
-            ctx.filter = `blur(${globalBlur}px)`;
+            ctx.shadowBlur = globalBlur * 2;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
         }
 
         if (this.distortion > 0.3) {
@@ -262,7 +264,8 @@ class RippleEffect {
         ctx.lineWidth = 3 + this.feedback * 2;
 
         if (globalBlur > 0.1) {
-            ctx.filter = `blur(${globalBlur}px)`;
+            ctx.shadowBlur = globalBlur * 2;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
         }
 
         if (this.jagged) {
@@ -321,7 +324,8 @@ class FallingLineEffect {
         ctx.lineWidth = this.thickness;
 
         if (globalBlur > 0.1) {
-            ctx.filter = `blur(${globalBlur}px)`;
+            ctx.shadowBlur = globalBlur * 2;
+            ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
         }
 
         ctx.beginPath();
@@ -389,12 +393,10 @@ class PyramidEffect {
         ctx.translate(this.x, this.y);
         ctx.globalAlpha = this.alpha;
 
-        if (globalBlur > 0.1) {
-            ctx.filter = `blur(${globalBlur}px)`;
-        }
-
-        if (this.blur > 0.3) {
-            ctx.shadowBlur = 20 * this.blur;
+        // Combine pyramid blur and global blur
+        const totalBlur = (this.blur > 0.3 ? 20 * this.blur : 0) + (globalBlur > 0.1 ? globalBlur * 2 : 0);
+        if (totalBlur > 0) {
+            ctx.shadowBlur = totalBlur;
             ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
         }
 
@@ -471,12 +473,10 @@ class FlowerEffect {
         ctx.rotate(this.rotation);
         ctx.globalAlpha = this.alpha;
 
-        if (globalBlur > 0.1) {
-            ctx.filter = `blur(${globalBlur}px)`;
-        }
-
-        if (this.blur > 0.3) {
-            ctx.shadowBlur = 20 * this.blur;
+        // Combine flower blur and global blur
+        const totalBlur = (this.blur > 0.3 ? 20 * this.blur : 0) + (globalBlur > 0.1 ? globalBlur * 2 : 0);
+        if (totalBlur > 0) {
+            ctx.shadowBlur = totalBlur;
             ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
         }
 

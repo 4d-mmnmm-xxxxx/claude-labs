@@ -11,8 +11,12 @@ function updateStepVisuals(stepElement, instrument, stepIndex) {
     // Size: 20% to 100% (0.2 to 1.0)
     const baseSize = 32;
     const size = baseSize * velocity;
+    const sizeDiff = baseSize - size;
+    const margin = sizeDiff / 2;
+
     stepElement.style.width = `${size}px`;
     stepElement.style.height = `${size}px`;
+    stepElement.style.margin = `${margin}px`;
 
     // Fill vs stroke: 89% and below = stroke only, 90-100% = fill
     const velocityPercent = velocity * 100;
@@ -41,40 +45,50 @@ function initUI() {
             step.dataset.step = i;
             step.dataset.instrument = instrument;
 
-            // Click to toggle
-            step.addEventListener('click', () => {
-                sequencer.toggleStep(instrument, i);
-                updateStepVisuals(step, instrument, i);
-            });
-
-            // Drag to adjust velocity
+            // Click to toggle, drag to adjust velocity
             let isDragging = false;
+            let hasDragged = false;
             let startY = 0;
             let startVelocity = 1.0;
 
             step.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                hasDragged = false;
+                startY = e.clientY;
                 if (sequencer.patterns[instrument][i].active) {
-                    isDragging = true;
-                    startY = e.clientY;
                     startVelocity = sequencer.patterns[instrument][i].velocity;
                     e.preventDefault();
                 }
             });
 
             document.addEventListener('mousemove', (e) => {
-                if (isDragging) {
-                    const deltaY = startY - e.clientY; // Upward = increase
-                    const velocityChange = deltaY / 100; // 100px = 1.0 change
-                    let newVelocity = startVelocity + velocityChange;
-                    newVelocity = Math.max(0.2, Math.min(1.0, newVelocity));
+                if (isDragging && sequencer.patterns[instrument][i].active) {
+                    const deltaY = Math.abs(startY - e.clientY);
 
-                    sequencer.patterns[instrument][i].velocity = newVelocity;
-                    updateStepVisuals(step, instrument, i);
+                    // Only start dragging if moved more than 5 pixels
+                    if (deltaY > 5) {
+                        hasDragged = true;
+                        const velocityDelta = (startY - e.clientY) / 100; // Upward = increase
+                        let newVelocity = startVelocity + velocityDelta;
+                        newVelocity = Math.max(0.2, Math.min(1.0, newVelocity));
+
+                        sequencer.patterns[instrument][i].velocity = newVelocity;
+                        updateStepVisuals(step, instrument, i);
+                    }
                 }
             });
 
             document.addEventListener('mouseup', () => {
                 isDragging = false;
+            });
+
+            // Click to toggle (only if not dragged)
+            step.addEventListener('click', (e) => {
+                if (!hasDragged) {
+                    sequencer.toggleStep(instrument, i);
+                    updateStepVisuals(step, instrument, i);
+                }
+                hasDragged = false;
             });
 
             stepsContainer.appendChild(step);

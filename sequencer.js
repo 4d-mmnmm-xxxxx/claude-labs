@@ -159,7 +159,38 @@ class Sequencer {
         );
         if (stepElement) {
             const isActive = this.patterns[instrument][step].active;
+            const velocity = this.patterns[instrument][step].velocity;
+
             stepElement.classList.toggle('active', isActive);
+
+            if (isActive) {
+                // Update visual size based on velocity
+                const baseSize = 32;
+                const size = baseSize * velocity;
+                const sizeDiff = baseSize - size;
+                const margin = sizeDiff / 2;
+
+                stepElement.style.width = `${size}px`;
+                stepElement.style.height = `${size}px`;
+                stepElement.style.margin = `${margin}px`;
+
+                // Update fill vs stroke based on velocity
+                const velocityPercent = velocity * 100;
+                if (velocityPercent >= 90) {
+                    stepElement.style.background = '#fff';
+                    stepElement.style.border = '2px solid #fff';
+                } else {
+                    stepElement.style.background = 'transparent';
+                    stepElement.style.border = '2px solid #fff';
+                }
+            } else {
+                // Reset to default size when inactive
+                stepElement.style.width = '32px';
+                stepElement.style.height = '32px';
+                stepElement.style.margin = '0px';
+                stepElement.style.background = '';
+                stepElement.style.border = '';
+            }
         }
     }
 
@@ -179,7 +210,8 @@ class Sequencer {
             }
         });
 
-        // Keep patterns intact
+        // Clear all patterns
+        this.clearPattern();
     }
 
     clearPattern() {
@@ -187,6 +219,7 @@ class Sequencer {
             this.patterns[instrument].forEach((pattern, step) => {
                 pattern.active = false;
                 pattern.param = 5;
+                pattern.velocity = 1.0;
                 this.updateStepUI(instrument, step);
             });
         });
@@ -194,6 +227,7 @@ class Sequencer {
         // Clear param inputs
         document.querySelectorAll('.param-input').forEach(input => {
             input.value = '5.0';
+            input.disabled = true;
         });
     }
 }
