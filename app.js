@@ -196,19 +196,33 @@ function initUI() {
     });
 
     hideButton.addEventListener('click', () => {
-        uiHidden = !uiHidden;
-        const sequencerElement = document.getElementById('sequencer');
-        const controlsElement = document.getElementById('controls');
-
-        if (uiHidden) {
-            sequencerElement.classList.add('hidden');
-            controlsElement.classList.add('hidden');
-        } else {
-            sequencerElement.classList.remove('hidden');
-            controlsElement.classList.remove('hidden');
-        }
-        console.log('UI:', uiHidden ? 'HIDDEN' : 'VISIBLE');
+        toggleUI();
     });
+
+    // Show UI button (cross in center)
+    const showUIButton = document.getElementById('showUIButton');
+    showUIButton.addEventListener('click', () => {
+        toggleUI();
+    });
+}
+
+// Toggle UI visibility
+function toggleUI() {
+    uiHidden = !uiHidden;
+    const sequencerElement = document.getElementById('sequencer');
+    const controlsElement = document.getElementById('controls');
+    const showUIButton = document.getElementById('showUIButton');
+
+    if (uiHidden) {
+        sequencerElement.classList.add('hidden');
+        controlsElement.classList.add('hidden');
+        showUIButton.classList.remove('hidden');
+    } else {
+        sequencerElement.classList.remove('hidden');
+        controlsElement.classList.remove('hidden');
+        showUIButton.classList.add('hidden');
+    }
+    console.log('UI:', uiHidden ? 'HIDDEN' : 'VISIBLE');
 }
 
 // Keyboard controls
@@ -230,18 +244,7 @@ document.addEventListener('keydown', (e) => {
 
         case 'b':
             // Toggle UI visibility - hide everything for VJ mode
-            uiHidden = !uiHidden;
-            const sequencerElement = document.getElementById('sequencer');
-            const controlsElement = document.getElementById('controls');
-
-            if (uiHidden) {
-                sequencerElement.classList.add('hidden');
-                controlsElement.classList.add('hidden');
-            } else {
-                sequencerElement.classList.remove('hidden');
-                controlsElement.classList.remove('hidden');
-            }
-            console.log('UI:', uiHidden ? 'HIDDEN' : 'VISIBLE');
+            toggleUI();
             break;
 
         case ' ':
