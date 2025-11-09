@@ -7,6 +7,7 @@ class VisualEngine {
         this.kickSquarePosition = 0; // 0: top-left, 1: top-right, 2: bottom-right, 3: bottom-left
         this.hihatSineOffset = 0;
         this.flowerMode = false;
+        this.globalBlur = 0;
 
         this.resize();
         window.addEventListener('resize', () => this.resize());
@@ -21,26 +22,18 @@ class VisualEngine {
     animate() {
         // Get global blur value
         const blurFader = document.getElementById('fader5');
-        const globalBlur = blurFader ? parseFloat(blurFader.value) / 10 : 0; // 0 to 10
+        this.globalBlur = blurFader ? parseFloat(blurFader.value) / 10 : 0; // 0 to 10
 
         // Clear with fade effect
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Apply global blur if needed
-        if (globalBlur > 0.1) {
-            this.ctx.filter = `blur(${globalBlur}px)`;
-        }
-
         // Update and render all effects
         this.effects = this.effects.filter(effect => {
             effect.update();
-            effect.render(this.ctx);
+            effect.render(this.ctx, this.globalBlur);
             return !effect.isDead();
         });
-
-        // Reset filter
-        this.ctx.filter = 'none';
 
         requestAnimationFrame(() => this.animate());
     }
@@ -154,7 +147,13 @@ class FlashEffect {
         this.alpha = Math.max(0, 0.5 - (this.life / 0.2) * 0.5);
     }
 
-    render(ctx) {
+    render(ctx, globalBlur = 0) {
+        ctx.save();
+
+        if (globalBlur > 0.1) {
+            ctx.filter = `blur(${globalBlur}px)`;
+        }
+
         if (this.distortion > 0.3) {
             // Glitch effect
             const strips = 10;
@@ -168,6 +167,8 @@ class FlashEffect {
             ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
             ctx.fillRect(0, 0, this.width, this.height);
         }
+
+        ctx.restore();
     }
 
     isDead() {
@@ -191,12 +192,16 @@ class SquareEffect {
         this.alpha = Math.max(0, 1 - (this.life / 0.2));
     }
 
-    render(ctx) {
+    render(ctx, globalBlur = 0) {
         ctx.save();
         ctx.globalAlpha = this.alpha;
         ctx.strokeStyle = '#fff';
         ctx.fillStyle = '#fff';
         ctx.lineWidth = 10;
+
+        if (globalBlur > 0.1) {
+            ctx.filter = `blur(${globalBlur}px)`;
+        }
 
         if (this.distortion > 0.3) {
             // Glitch distortion
@@ -251,10 +256,14 @@ class RippleEffect {
         this.alpha = Math.max(0, 0.8 * (1 - this.radius / this.maxRadius));
     }
 
-    render(ctx) {
+    render(ctx, globalBlur = 0) {
         ctx.save();
         ctx.strokeStyle = `rgba(255, 255, 255, ${this.alpha})`;
         ctx.lineWidth = 3 + this.feedback * 2;
+
+        if (globalBlur > 0.1) {
+            ctx.filter = `blur(${globalBlur}px)`;
+        }
 
         if (this.jagged) {
             // Jagged ripple
@@ -305,11 +314,16 @@ class FallingLineEffect {
         }
     }
 
-    render(ctx) {
+    render(ctx, globalBlur = 0) {
         ctx.save();
         ctx.globalAlpha = this.alpha;
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = this.thickness;
+
+        if (globalBlur > 0.1) {
+            ctx.filter = `blur(${globalBlur}px)`;
+        }
+
         ctx.beginPath();
         ctx.moveTo(this.x, this.y);
         ctx.lineTo(this.x, this.y + 50);
@@ -370,10 +384,14 @@ class PyramidEffect {
         };
     }
 
-    render(ctx) {
+    render(ctx, globalBlur = 0) {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.globalAlpha = this.alpha;
+
+        if (globalBlur > 0.1) {
+            ctx.filter = `blur(${globalBlur}px)`;
+        }
 
         if (this.blur > 0.3) {
             ctx.shadowBlur = 20 * this.blur;
@@ -447,11 +465,15 @@ class FlowerEffect {
         }
     }
 
-    render(ctx) {
+    render(ctx, globalBlur = 0) {
         ctx.save();
         ctx.translate(this.x, this.y);
         ctx.rotate(this.rotation);
         ctx.globalAlpha = this.alpha;
+
+        if (globalBlur > 0.1) {
+            ctx.filter = `blur(${globalBlur}px)`;
+        }
 
         if (this.blur > 0.3) {
             ctx.shadowBlur = 20 * this.blur;
