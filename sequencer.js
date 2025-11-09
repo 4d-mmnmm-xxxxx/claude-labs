@@ -150,6 +150,7 @@ class Sequencer {
         document.getElementById('fader2').value = 0;
         document.getElementById('fader3').value = 0;
         document.getElementById('fader4').value = 50;
+        document.getElementById('fader5').value = 0;
 
         // Update value displays
         document.querySelectorAll('.fader').forEach((fader, index) => {

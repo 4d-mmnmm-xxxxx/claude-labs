@@ -19,9 +19,18 @@ class VisualEngine {
     }
 
     animate() {
+        // Get global blur value
+        const blurFader = document.getElementById('fader5');
+        const globalBlur = blurFader ? parseFloat(blurFader.value) / 10 : 0; // 0 to 10
+
         // Clear with fade effect
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        // Apply global blur if needed
+        if (globalBlur > 0.1) {
+            this.ctx.filter = `blur(${globalBlur}px)`;
+        }
 
         // Update and render all effects
         this.effects = this.effects.filter(effect => {
@@ -29,6 +38,9 @@ class VisualEngine {
             effect.render(this.ctx);
             return !effect.isDead();
         });
+
+        // Reset filter
+        this.ctx.filter = 'none';
 
         requestAnimationFrame(() => this.animate());
     }
@@ -41,8 +53,8 @@ class VisualEngine {
             // Pattern 1: Full screen flash
             this.effects.push(new FlashEffect(this.canvas.width, this.canvas.height, distortion));
         } else {
-            // Pattern 2: Moving square
-            const size = Math.min(this.canvas.width, this.canvas.height) * 0.23;
+            // Pattern 2: Moving square (1.5x larger)
+            const size = Math.min(this.canvas.width, this.canvas.height) * 0.345; // 0.23 * 1.5
             let x, y;
 
             if (this.kickSquarePosition === 0) {
@@ -58,9 +70,9 @@ class VisualEngine {
                 x = size / 2;
                 y = this.canvas.height - size / 2;
             } else {
-                // Random
-                x = Math.random() * (this.canvas.width - size) + size / 2;
-                y = Math.random() * (this.canvas.height - size) + size / 2;
+                // Random (can overlap)
+                x = Math.random() * this.canvas.width;
+                y = Math.random() * this.canvas.height;
             }
 
             this.effects.push(new SquareEffect(x, y, size, distortion));

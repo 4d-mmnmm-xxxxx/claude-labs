@@ -98,17 +98,17 @@ document.addEventListener('keydown', (e) => {
             break;
 
         case 'b':
-            // Toggle UI visibility
+            // Toggle UI visibility - hide everything for VJ mode
             uiHidden = !uiHidden;
+            const sequencer = document.getElementById('sequencer');
             const controls = document.getElementById('controls');
-            const params = document.querySelectorAll('.params');
 
             if (uiHidden) {
+                sequencer.classList.add('hidden');
                 controls.classList.add('hidden');
-                params.forEach(p => p.classList.add('hidden'));
             } else {
+                sequencer.classList.remove('hidden');
                 controls.classList.remove('hidden');
-                params.forEach(p => p.classList.remove('hidden'));
             }
             console.log('UI:', uiHidden ? 'HIDDEN' : 'VISIBLE');
             break;
