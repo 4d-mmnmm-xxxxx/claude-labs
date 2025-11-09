@@ -7,8 +7,9 @@ const sequencer = new Sequencer(audioEngine, visualEngine);
 function updateStepVisuals(stepElement, instrument, stepIndex) {
     const pattern = sequencer.patterns[instrument][stepIndex];
     const velocity = pattern.velocity;
+    const isActive = pattern.active;
 
-    // Size: 20% to 100% (0.2 to 1.0)
+    // Size: 20% to 100% (0.2 to 1.0) - always based on velocity
     const baseSize = 32;
     const size = baseSize * velocity;
     const sizeDiff = baseSize - size;
@@ -18,14 +19,27 @@ function updateStepVisuals(stepElement, instrument, stepIndex) {
     stepElement.style.height = `${size}px`;
     stepElement.style.margin = `${margin}px`;
 
-    // Fill vs stroke: 89% and below = stroke only, 90-100% = fill
+    // Visual appearance based on velocity and active state
     const velocityPercent = velocity * 100;
+
     if (velocityPercent >= 90) {
-        stepElement.style.background = '#fff';
-        stepElement.style.border = '2px solid #fff';
+        // Large: filled
+        if (isActive) {
+            stepElement.style.background = '#fff';
+            stepElement.style.border = '2px solid #fff';
+        } else {
+            stepElement.style.background = '#4a5568';
+            stepElement.style.border = '2px solid #4a5568';
+        }
     } else {
-        stepElement.style.background = 'transparent';
-        stepElement.style.border = '2px solid #fff';
+        // Small: stroke only
+        if (isActive) {
+            stepElement.style.background = 'transparent';
+            stepElement.style.border = '2px solid #fff';
+        } else {
+            stepElement.style.background = 'transparent';
+            stepElement.style.border = '2px solid #4a5568';
+        }
     }
 }
 
@@ -55,14 +69,12 @@ function initUI() {
                 isDragging = true;
                 hasDragged = false;
                 startY = e.clientY;
-                if (sequencer.patterns[instrument][i].active) {
-                    startVelocity = sequencer.patterns[instrument][i].velocity;
-                    e.preventDefault();
-                }
+                startVelocity = sequencer.patterns[instrument][i].velocity;
+                e.preventDefault();
             });
 
             document.addEventListener('mousemove', (e) => {
-                if (isDragging && sequencer.patterns[instrument][i].active) {
+                if (isDragging) {
                     const deltaY = Math.abs(startY - e.clientY);
 
                     // Only start dragging if moved more than 5 pixels

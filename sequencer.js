@@ -163,33 +163,37 @@ class Sequencer {
 
             stepElement.classList.toggle('active', isActive);
 
-            if (isActive) {
-                // Update visual size based on velocity
-                const baseSize = 32;
-                const size = baseSize * velocity;
-                const sizeDiff = baseSize - size;
-                const margin = sizeDiff / 2;
+            // Size: 20% to 100% (0.2 to 1.0) - always based on velocity
+            const baseSize = 32;
+            const size = baseSize * velocity;
+            const sizeDiff = baseSize - size;
+            const margin = sizeDiff / 2;
 
-                stepElement.style.width = `${size}px`;
-                stepElement.style.height = `${size}px`;
-                stepElement.style.margin = `${margin}px`;
+            stepElement.style.width = `${size}px`;
+            stepElement.style.height = `${size}px`;
+            stepElement.style.margin = `${margin}px`;
 
-                // Update fill vs stroke based on velocity
-                const velocityPercent = velocity * 100;
-                if (velocityPercent >= 90) {
+            // Visual appearance based on velocity and active state
+            const velocityPercent = velocity * 100;
+
+            if (velocityPercent >= 90) {
+                // Large: filled
+                if (isActive) {
                     stepElement.style.background = '#fff';
                     stepElement.style.border = '2px solid #fff';
                 } else {
-                    stepElement.style.background = 'transparent';
-                    stepElement.style.border = '2px solid #fff';
+                    stepElement.style.background = '#4a5568';
+                    stepElement.style.border = '2px solid #4a5568';
                 }
             } else {
-                // Reset to default size when inactive
-                stepElement.style.width = '32px';
-                stepElement.style.height = '32px';
-                stepElement.style.margin = '0px';
-                stepElement.style.background = '';
-                stepElement.style.border = '';
+                // Small: stroke only
+                if (isActive) {
+                    stepElement.style.background = 'transparent';
+                    stepElement.style.border = '2px solid #fff';
+                } else {
+                    stepElement.style.background = 'transparent';
+                    stepElement.style.border = '2px solid #4a5568';
+                }
             }
         }
     }
