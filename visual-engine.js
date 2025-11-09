@@ -344,7 +344,7 @@ class PyramidEffect {
         this.blur = blur;
         this.rotationY = 0;
         this.rotationZ = 0;
-        this.rotationSpeed = 0.015; // Slower rotation
+        this.rotationSpeed = 0.005; // Much slower rotation
         this.alpha = 1;
         this.life = 0;
     }
@@ -451,7 +451,7 @@ class FlowerEffect {
         this.size = size;
         this.blur = blur;
         this.rotation = 0;
-        this.rotationSpeed = 0.03;
+        this.rotationSpeed = 0.01; // Slower rotation
         this.alpha = 1;
         this.life = 0;
     }
@@ -480,11 +480,11 @@ class FlowerEffect {
             ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
         }
 
-        ctx.fillStyle = '#fff';
         ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
+        // Line width: 0.5-5px based on blur parameter
+        ctx.lineWidth = 0.5 + (this.blur * 4.5);
 
-        // Draw 5-petal flower
+        // Draw 5-petal flower (stroke only)
         const petals = 5;
         const petalSize = this.size / 3;
 
@@ -495,14 +495,13 @@ class FlowerEffect {
 
             ctx.beginPath();
             ctx.arc(px, py, petalSize / 2, 0, Math.PI * 2);
-            ctx.fill();
             ctx.stroke();
         }
 
-        // Center
+        // Center (stroke only)
         ctx.beginPath();
         ctx.arc(0, 0, petalSize / 3, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.stroke();
 
         ctx.restore();
     }

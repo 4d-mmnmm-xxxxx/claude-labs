@@ -8,12 +8,12 @@ class Sequencer {
         this.isPlaying = false;
         this.intervalId = null;
 
-        // Pattern data: { step: boolean, param: number }
+        // Pattern data: { step: boolean, param: number, velocity: number (0.2-1.0) }
         this.patterns = {
-            kick: Array(16).fill(null).map(() => ({ active: false, param: 5 })),
-            snare: Array(16).fill(null).map(() => ({ active: false, param: 5 })),
-            hihat: Array(16).fill(null).map(() => ({ active: false, param: 5 })),
-            tom: Array(16).fill(null).map(() => ({ active: false, param: 5 }))
+            kick: Array(16).fill(null).map(() => ({ active: false, param: 5, velocity: 1.0 })),
+            snare: Array(16).fill(null).map(() => ({ active: false, param: 5, velocity: 1.0 })),
+            hihat: Array(16).fill(null).map(() => ({ active: false, param: 5, velocity: 1.0 })),
+            tom: Array(16).fill(null).map(() => ({ active: false, param: 5, velocity: 1.0 }))
         };
 
         // Track consecutive hi-hat hits
@@ -27,8 +27,7 @@ class Sequencer {
         this.isPlaying = true;
         this.currentStep = 0;
 
-        const stepDuration = (60 / this.bpm) * 1000 / 4; // 16th notes
-        this.intervalId = setInterval(() => this.tick(), stepDuration);
+        this.scheduleTick();
     }
 
     stop() {
@@ -36,10 +35,27 @@ class Sequencer {
 
         this.isPlaying = false;
         if (this.intervalId) {
-            clearInterval(this.intervalId);
+            clearTimeout(this.intervalId);
             this.intervalId = null;
         }
         this.clearPlayingSteps();
+    }
+
+    scheduleTick() {
+        if (!this.isPlaying) return;
+
+        const bpm = this.getBPM();
+        const stepDuration = (60 / bpm) * 1000 / 4; // 16th notes
+
+        this.intervalId = setTimeout(() => {
+            this.tick();
+            this.scheduleTick();
+        }, stepDuration);
+    }
+
+    getBPM() {
+        const bpmInput = document.getElementById('bpmInput');
+        return bpmInput ? parseInt(bpmInput.value) || 123 : 123;
     }
 
     tick() {
@@ -49,7 +65,7 @@ class Sequencer {
         Object.keys(this.patterns).forEach(instrument => {
             const pattern = this.patterns[instrument][this.currentStep];
             if (pattern.active) {
-                this.playInstrument(instrument, pattern.param);
+                this.playInstrument(instrument, pattern.param, pattern.velocity);
                 this.highlightStep(instrument, this.currentStep);
             }
         });
@@ -57,30 +73,33 @@ class Sequencer {
         this.currentStep = (this.currentStep + 1) % this.steps;
     }
 
-    playInstrument(instrument, param) {
+    playInstrument(instrument, param, velocity = 1.0) {
         const faders = this.getFaderValues();
         const volumes = this.getVolumeValues();
 
+        // Apply velocity to volume
+        const finalVolume = volumes[instrument] * velocity;
+
         switch (instrument) {
             case 'kick':
-                this.audioEngine.playKick(param, faders.fader1, volumes.kick);
+                this.audioEngine.playKick(param, faders.fader1, finalVolume);
                 this.visualEngine.triggerKick(faders.fader1);
                 break;
 
             case 'snare':
-                this.audioEngine.playSnare(param, faders.fader2, volumes.snare);
+                this.audioEngine.playSnare(param, faders.fader2, finalVolume);
                 this.visualEngine.triggerSnare(faders.fader2);
                 break;
 
             case 'hihat':
                 const consecutive = (this.currentStep === this.lastHihatStep + 1);
-                this.audioEngine.playHihat(param, faders.fader3, volumes.hihat);
+                this.audioEngine.playHihat(param, faders.fader3, finalVolume);
                 this.visualEngine.triggerHihat(faders.fader3, consecutive);
                 this.lastHihatStep = this.currentStep;
                 break;
 
             case 'tom':
-                this.audioEngine.playTom(param, faders.fader4, volumes.tom);
+                this.audioEngine.playTom(param, faders.fader4, finalVolume);
                 this.visualEngine.triggerTom(param, faders.fader4, faders.fader4);
                 break;
         }

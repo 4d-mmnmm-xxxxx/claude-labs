@@ -123,7 +123,7 @@ body {
 .step {
     width: 32px;
     height: 32px;
-    border-radius: 50%;
+    border-radius: 2px;
     background: #4a5568;
     border: 2px solid rgba(255, 255, 255, 0.1);
     cursor: pointer;
@@ -278,6 +278,25 @@ body {
 
 .keyboard-hints span {
     text-align: center;
+}
+
+/* BPM Input */
+.bpm-input {
+    width: 60px;
+    height: 28px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+    color: #fff;
+    text-align: center;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    margin-top: 5px;
+}
+
+.bpm-input:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.6);
 }
 
 /* Hidden state */

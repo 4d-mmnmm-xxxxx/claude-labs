@@ -3,6 +3,28 @@ const audioEngine = new AudioEngine();
 const visualEngine = new VisualEngine('visualCanvas');
 const sequencer = new Sequencer(audioEngine, visualEngine);
 
+// Update step visuals based on velocity
+function updateStepVisuals(stepElement, instrument, stepIndex) {
+    const pattern = sequencer.patterns[instrument][stepIndex];
+    const velocity = pattern.velocity;
+
+    // Size: 20% to 100% (0.2 to 1.0)
+    const baseSize = 32;
+    const size = baseSize * velocity;
+    stepElement.style.width = `${size}px`;
+    stepElement.style.height = `${size}px`;
+
+    // Fill vs stroke: 89% and below = stroke only, 90-100% = fill
+    const velocityPercent = velocity * 100;
+    if (velocityPercent >= 90) {
+        stepElement.style.background = '#fff';
+        stepElement.style.border = '2px solid #fff';
+    } else {
+        stepElement.style.background = 'transparent';
+        stepElement.style.border = '2px solid #fff';
+    }
+}
+
 // Initialize UI
 function initUI() {
     // Create step buttons and param inputs for each instrument
@@ -17,9 +39,44 @@ function initUI() {
             const step = document.createElement('div');
             step.className = 'step';
             step.dataset.step = i;
+            step.dataset.instrument = instrument;
+
+            // Click to toggle
             step.addEventListener('click', () => {
                 sequencer.toggleStep(instrument, i);
+                updateStepVisuals(step, instrument, i);
             });
+
+            // Drag to adjust velocity
+            let isDragging = false;
+            let startY = 0;
+            let startVelocity = 1.0;
+
+            step.addEventListener('mousedown', (e) => {
+                if (sequencer.patterns[instrument][i].active) {
+                    isDragging = true;
+                    startY = e.clientY;
+                    startVelocity = sequencer.patterns[instrument][i].velocity;
+                    e.preventDefault();
+                }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isDragging) {
+                    const deltaY = startY - e.clientY; // Upward = increase
+                    const velocityChange = deltaY / 100; // 100px = 1.0 change
+                    let newVelocity = startVelocity + velocityChange;
+                    newVelocity = Math.max(0.2, Math.min(1.0, newVelocity));
+
+                    sequencer.patterns[instrument][i].velocity = newVelocity;
+                    updateStepVisuals(step, instrument, i);
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+            });
+
             stepsContainer.appendChild(step);
 
             // Create param input
@@ -78,6 +135,23 @@ function initUI() {
             valueDisplay.textContent = fader.value;
         }
     });
+
+    // BPM controls
+    const bpmFader = document.getElementById('bpmFader');
+    const bpmInput = document.getElementById('bpmInput');
+
+    if (bpmFader && bpmInput) {
+        bpmFader.addEventListener('input', (e) => {
+            bpmInput.value = e.target.value;
+        });
+
+        bpmInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (value >= 60 && value <= 180) {
+                bpmFader.value = value;
+            }
+        });
+    }
 }
 
 // Keyboard controls
