@@ -17,7 +17,7 @@ class AudioEngine {
     }
 
     // Kick Drum - FM synthesis with feedback
-    playKick(param = 5, distortion = 0) {
+    playKick(param = 5, distortion = 0, volume = 0.7) {
         if (!this.initialized) return;
 
         const now = this.audioContext.currentTime;
@@ -58,7 +58,7 @@ class AudioEngine {
 
         // Envelope
         const envelope = this.audioContext.createGain();
-        envelope.gain.setValueAtTime(1, now);
+        envelope.gain.setValueAtTime(volume, now);
         envelope.gain.exponentialRampToValueAtTime(0.01, now + duration);
 
         carrier.connect(envelope);
@@ -71,7 +71,7 @@ class AudioEngine {
     }
 
     // Snare Drum - Noisy FM synthesis
-    playSnare(param = 5, feedback = 0) {
+    playSnare(param = 5, feedback = 0, volume = 0.7) {
         if (!this.initialized) return;
 
         const now = this.audioContext.currentTime;
@@ -110,7 +110,7 @@ class AudioEngine {
         // Mix and envelope
         const mixer = this.audioContext.createGain();
         const envelope = this.audioContext.createGain();
-        envelope.gain.setValueAtTime(0.8, now);
+        envelope.gain.setValueAtTime(volume, now);
         envelope.gain.exponentialRampToValueAtTime(0.01, now + duration);
 
         tonal.connect(mixer);
@@ -128,7 +128,7 @@ class AudioEngine {
     }
 
     // Hi-hat - Filtered noise
-    playHihat(param = 5, sustain = 0) {
+    playHihat(param = 5, sustain = 0, volume = 0.7) {
         if (!this.initialized) return;
 
         const now = this.audioContext.currentTime;
@@ -156,7 +156,7 @@ class AudioEngine {
 
         // Envelope
         const envelope = this.audioContext.createGain();
-        envelope.gain.setValueAtTime(0.5, now);
+        envelope.gain.setValueAtTime(volume * 0.7, now);
         envelope.gain.exponentialRampToValueAtTime(0.01, now + duration);
 
         bandpass.connect(envelope);
@@ -167,7 +167,7 @@ class AudioEngine {
     }
 
     // Tom - Pitched sine wave
-    playTom(param = 5, pitchOffset = 0) {
+    playTom(param = 5, pitchOffset = 0, volume = 0.7) {
         if (!this.initialized) return;
 
         const now = this.audioContext.currentTime;
@@ -187,7 +187,7 @@ class AudioEngine {
 
         // Envelope
         const envelope = this.audioContext.createGain();
-        envelope.gain.setValueAtTime(0.7, now);
+        envelope.gain.setValueAtTime(volume, now);
         envelope.gain.exponentialRampToValueAtTime(0.01, now + duration);
 
         osc.connect(envelope);

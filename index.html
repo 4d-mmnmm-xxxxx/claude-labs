@@ -17,26 +17,46 @@
             <!-- Instrument Rows -->
             <div class="instrument-row" data-instrument="kick">
                 <div class="instrument-label">KICK</div>
-                <div class="steps" id="kick-steps"></div>
-                <div class="params" id="kick-params"></div>
+                <div class="row-content">
+                    <div class="steps-container">
+                        <div class="steps" id="kick-steps"></div>
+                        <input type="range" class="volume-knob" data-instrument="kick" min="0" max="100" value="70" orient="vertical">
+                    </div>
+                    <div class="params" id="kick-params"></div>
+                </div>
             </div>
 
             <div class="instrument-row" data-instrument="snare">
                 <div class="instrument-label">SNARE</div>
-                <div class="steps" id="snare-steps"></div>
-                <div class="params" id="snare-params"></div>
+                <div class="row-content">
+                    <div class="steps-container">
+                        <div class="steps" id="snare-steps"></div>
+                        <input type="range" class="volume-knob" data-instrument="snare" min="0" max="100" value="70" orient="vertical">
+                    </div>
+                    <div class="params" id="snare-params"></div>
+                </div>
             </div>
 
             <div class="instrument-row" data-instrument="hihat">
                 <div class="instrument-label">HIHAT</div>
-                <div class="steps" id="hihat-steps"></div>
-                <div class="params" id="hihat-params"></div>
+                <div class="row-content">
+                    <div class="steps-container">
+                        <div class="steps" id="hihat-steps"></div>
+                        <input type="range" class="volume-knob" data-instrument="hihat" min="0" max="100" value="70" orient="vertical">
+                    </div>
+                    <div class="params" id="hihat-params"></div>
+                </div>
             </div>
 
             <div class="instrument-row" data-instrument="tom">
                 <div class="instrument-label">TOM</div>
-                <div class="steps" id="tom-steps"></div>
-                <div class="params" id="tom-params"></div>
+                <div class="row-content">
+                    <div class="steps-container">
+                        <div class="steps" id="tom-steps"></div>
+                        <input type="range" class="volume-knob" data-instrument="tom" min="0" max="100" value="70" orient="vertical">
+                    </div>
+                    <div class="params" id="tom-params"></div>
+                </div>
             </div>
         </div>
 
@@ -71,6 +91,7 @@
                 <div class="keyboard-hints">
                     <span>F: Flower Mode</span>
                     <span>R: Reset</span>
+                    <span>B: Hide UI</span>
                 </div>
             </div>
         </div>

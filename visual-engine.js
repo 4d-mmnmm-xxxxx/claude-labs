@@ -33,9 +33,11 @@ class VisualEngine {
         requestAnimationFrame(() => this.animate());
     }
 
-    // Kick effect - Two patterns alternating
+    // Kick effect - 10% flash, 90% square
     triggerKick(distortion = 0) {
-        if (this.kickPatternIndex % 2 === 0) {
+        const useFlash = Math.random() < 0.1; // 10% chance for flash
+
+        if (useFlash) {
             // Pattern 1: Full screen flash
             this.effects.push(new FlashEffect(this.canvas.width, this.canvas.height, distortion));
         } else {
@@ -70,8 +72,6 @@ class VisualEngine {
                 this.kickSquarePosition = Math.floor(Math.random() * 10) + 4; // Random after sequence
             }
         }
-
-        this.kickPatternIndex++;
     }
 
     // Snare effect - Ripple
@@ -171,6 +171,7 @@ class SquareEffect {
         this.distortion = distortion;
         this.alpha = 1;
         this.life = 0;
+        this.filled = Math.random() < 0.3; // 30% chance for filled, 70% for stroke
     }
 
     update() {
@@ -181,7 +182,9 @@ class SquareEffect {
     render(ctx) {
         ctx.save();
         ctx.globalAlpha = this.alpha;
+        ctx.strokeStyle = '#fff';
         ctx.fillStyle = '#fff';
+        ctx.lineWidth = 10;
 
         if (this.distortion > 0.3) {
             // Glitch distortion
@@ -191,16 +194,25 @@ class SquareEffect {
                 for (let j = 0; j < segments; j++) {
                     const offsetX = (Math.random() - 0.5) * 20 * this.distortion;
                     const offsetY = (Math.random() - 0.5) * 20 * this.distortion;
-                    ctx.fillRect(
-                        this.x - this.size / 2 + i * segmentSize + offsetX,
-                        this.y - this.size / 2 + j * segmentSize + offsetY,
-                        segmentSize,
-                        segmentSize
-                    );
+                    const x = this.x - this.size / 2 + i * segmentSize + offsetX;
+                    const y = this.y - this.size / 2 + j * segmentSize + offsetY;
+
+                    if (this.filled) {
+                        ctx.fillRect(x, y, segmentSize, segmentSize);
+                    } else {
+                        ctx.strokeRect(x, y, segmentSize, segmentSize);
+                    }
                 }
             }
         } else {
-            ctx.fillRect(this.x - this.size / 2, this.y - this.size / 2, this.size, this.size);
+            const x = this.x - this.size / 2;
+            const y = this.y - this.size / 2;
+
+            if (this.filled) {
+                ctx.fillRect(x, y, this.size, this.size);
+            } else {
+                ctx.strokeRect(x, y, this.size, this.size);
+            }
         }
 
         ctx.restore();
@@ -304,15 +316,17 @@ class PyramidEffect {
         this.y = y;
         this.size = size;
         this.blur = blur;
-        this.rotation = 0;
-        this.rotationSpeed = 0.05;
+        this.rotationY = 0;
+        this.rotationZ = 0;
+        this.rotationSpeed = 0.015; // Slower rotation
         this.alpha = 1;
         this.life = 0;
     }
 
     update() {
         this.life += 0.016;
-        this.rotation += this.rotationSpeed;
+        this.rotationY += this.rotationSpeed;
+        this.rotationZ += this.rotationSpeed * 0.7;
 
         if (this.life > 2) {
             // Fade out over 0.4 seconds
@@ -320,10 +334,33 @@ class PyramidEffect {
         }
     }
 
+    // 3D rotation helper
+    rotate3D(x, y, z, rotY, rotZ) {
+        // Rotate around Y axis
+        let cosY = Math.cos(rotY);
+        let sinY = Math.sin(rotY);
+        let x1 = x * cosY - z * sinY;
+        let z1 = x * sinY + z * cosY;
+        let y1 = y;
+
+        // Rotate around Z axis
+        let cosZ = Math.cos(rotZ);
+        let sinZ = Math.sin(rotZ);
+        let x2 = x1 * cosZ - y1 * sinZ;
+        let y2 = x1 * sinZ + y1 * cosZ;
+        let z2 = z1;
+
+        // Simple perspective projection
+        let perspective = 300 / (300 + z2);
+        return {
+            x: x2 * perspective,
+            y: y2 * perspective
+        };
+    }
+
     render(ctx) {
         ctx.save();
         ctx.translate(this.x, this.y);
-        ctx.rotate(this.rotation);
         ctx.globalAlpha = this.alpha;
 
         if (this.blur > 0.3) {
@@ -331,30 +368,42 @@ class PyramidEffect {
             ctx.shadowColor = 'rgba(255, 255, 255, 0.8)';
         }
 
-        ctx.fillStyle = '#fff';
         ctx.strokeStyle = '#fff';
         ctx.lineWidth = 2;
 
-        // Draw 3D pyramid
-        const halfSize = this.size / 2;
+        // Define 3D pyramid vertices
+        const s = this.size / 2;
+        const vertices = [
+            { x: -s, y: s, z: -s },   // 0: base bottom-left
+            { x: s, y: s, z: -s },    // 1: base bottom-right
+            { x: s, y: s, z: s },     // 2: base top-right
+            { x: -s, y: s, z: s },    // 3: base top-left
+            { x: 0, y: -s * 1.2, z: 0 }  // 4: apex
+        ];
 
-        // Base
-        ctx.beginPath();
-        ctx.moveTo(-halfSize, halfSize);
-        ctx.lineTo(halfSize, halfSize);
-        ctx.lineTo(halfSize, -halfSize);
-        ctx.lineTo(-halfSize, -halfSize);
-        ctx.closePath();
-        ctx.globalAlpha = this.alpha * 0.3;
-        ctx.fill();
+        // Project vertices to 2D
+        const projected = vertices.map(v => this.rotate3D(v.x, v.y, v.z, this.rotationY, this.rotationZ));
 
-        // Sides
-        ctx.globalAlpha = this.alpha;
+        // Draw pyramid edges (wireframe)
         ctx.beginPath();
-        ctx.moveTo(0, -halfSize * 1.5);
-        ctx.lineTo(-halfSize, halfSize);
-        ctx.lineTo(halfSize, halfSize);
-        ctx.closePath();
+
+        // Base edges
+        ctx.moveTo(projected[0].x, projected[0].y);
+        ctx.lineTo(projected[1].x, projected[1].y);
+        ctx.lineTo(projected[2].x, projected[2].y);
+        ctx.lineTo(projected[3].x, projected[3].y);
+        ctx.lineTo(projected[0].x, projected[0].y);
+
+        // Apex to corners
+        ctx.moveTo(projected[4].x, projected[4].y);
+        ctx.lineTo(projected[0].x, projected[0].y);
+        ctx.moveTo(projected[4].x, projected[4].y);
+        ctx.lineTo(projected[1].x, projected[1].y);
+        ctx.moveTo(projected[4].x, projected[4].y);
+        ctx.lineTo(projected[2].x, projected[2].y);
+        ctx.moveTo(projected[4].x, projected[4].y);
+        ctx.lineTo(projected[3].x, projected[3].y);
+
         ctx.stroke();
 
         ctx.restore();

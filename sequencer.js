@@ -59,27 +59,28 @@ class Sequencer {
 
     playInstrument(instrument, param) {
         const faders = this.getFaderValues();
+        const volumes = this.getVolumeValues();
 
         switch (instrument) {
             case 'kick':
-                this.audioEngine.playKick(param, faders.fader1);
+                this.audioEngine.playKick(param, faders.fader1, volumes.kick);
                 this.visualEngine.triggerKick(faders.fader1);
                 break;
 
             case 'snare':
-                this.audioEngine.playSnare(param, faders.fader2);
+                this.audioEngine.playSnare(param, faders.fader2, volumes.snare);
                 this.visualEngine.triggerSnare(faders.fader2);
                 break;
 
             case 'hihat':
                 const consecutive = (this.currentStep === this.lastHihatStep + 1);
-                this.audioEngine.playHihat(param, faders.fader3);
+                this.audioEngine.playHihat(param, faders.fader3, volumes.hihat);
                 this.visualEngine.triggerHihat(faders.fader3, consecutive);
                 this.lastHihatStep = this.currentStep;
                 break;
 
             case 'tom':
-                this.audioEngine.playTom(param, faders.fader4);
+                this.audioEngine.playTom(param, faders.fader4, volumes.tom);
                 this.visualEngine.triggerTom(param, faders.fader4, faders.fader4);
                 break;
         }
@@ -91,6 +92,20 @@ class Sequencer {
             fader2: parseFloat(document.getElementById('fader2').value) / 100,
             fader3: parseFloat(document.getElementById('fader3').value) / 100,
             fader4: parseFloat(document.getElementById('fader4').value) / 100
+        };
+    }
+
+    getVolumeValues() {
+        const getVolume = (instrument) => {
+            const knob = document.querySelector(`.volume-knob[data-instrument="${instrument}"]`);
+            return knob ? parseFloat(knob.value) / 100 : 0.7;
+        };
+
+        return {
+            kick: getVolume('kick'),
+            snare: getVolume('snare'),
+            hihat: getVolume('hihat'),
+            tom: getVolume('tom')
         };
     }
 

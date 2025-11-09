@@ -51,7 +51,6 @@ body {
 .instrument-row {
     margin-bottom: 25px;
     display: flex;
-    align-items: center;
     gap: 15px;
 }
 
@@ -65,12 +64,60 @@ body {
     font-weight: bold;
     letter-spacing: 1px;
     color: #fff;
+    align-self: flex-start;
+    margin-top: 8px;
+}
+
+.row-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.steps-container {
+    display: flex;
+    gap: 12px;
+    align-items: center;
 }
 
 /* Steps Container */
 .steps {
     display: flex;
     gap: 8px;
+}
+
+/* Volume Knob */
+.volume-knob {
+    -webkit-appearance: slider-vertical;
+    appearance: slider-vertical;
+    width: 6px;
+    height: 100px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+    border-radius: 3px;
+    cursor: pointer;
+    writing-mode: bt-lr;
+}
+
+.volume-knob::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+.volume-knob::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
 }
 
 .step {
@@ -231,4 +278,9 @@ body {
 
 .keyboard-hints span {
     text-align: center;
+}
+
+/* Hidden state */
+.hidden {
+    display: none !important;
 }

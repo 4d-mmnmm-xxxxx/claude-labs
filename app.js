@@ -81,6 +81,8 @@ function initUI() {
 }
 
 // Keyboard controls
+let uiHidden = false;
+
 document.addEventListener('keydown', (e) => {
     switch (e.key.toLowerCase()) {
         case 'f':
@@ -93,6 +95,22 @@ document.addEventListener('keydown', (e) => {
             // Reset parameters
             sequencer.reset();
             console.log('Parameters reset');
+            break;
+
+        case 'b':
+            // Toggle UI visibility
+            uiHidden = !uiHidden;
+            const controls = document.getElementById('controls');
+            const params = document.querySelectorAll('.params');
+
+            if (uiHidden) {
+                controls.classList.add('hidden');
+                params.forEach(p => p.classList.add('hidden'));
+            } else {
+                controls.classList.remove('hidden');
+                params.forEach(p => p.classList.remove('hidden'));
+            }
+            console.log('UI:', uiHidden ? 'HIDDEN' : 'VISIBLE');
             break;
 
         case ' ':
@@ -116,5 +134,6 @@ console.log('Controls:');
 console.log('  Click steps to activate/deactivate');
 console.log('  F: Toggle flower mode for Tom');
 console.log('  R: Reset parameters');
+console.log('  B: Hide/Show UI');
 console.log('  Space: Play/Stop');
 console.log('\nEnjoy creating! ✨');
