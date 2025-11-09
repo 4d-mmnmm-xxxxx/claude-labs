@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audiovisual Sequencer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Canvas for Visual Effects -->
+    <canvas id="visualCanvas"></canvas>
+
+    <!-- Main Container -->
+    <div id="app">
+        <!-- Sequencer Section -->
+        <div id="sequencer">
+            <!-- Instrument Rows -->
+            <div class="instrument-row" data-instrument="kick">
+                <div class="instrument-label">KICK</div>
+                <div class="steps" id="kick-steps"></div>
+                <div class="params" id="kick-params"></div>
+            </div>
+
+            <div class="instrument-row" data-instrument="snare">
+                <div class="instrument-label">SNARE</div>
+                <div class="steps" id="snare-steps"></div>
+                <div class="params" id="snare-params"></div>
+            </div>
+
+            <div class="instrument-row" data-instrument="hihat">
+                <div class="instrument-label">HIHAT</div>
+                <div class="steps" id="hihat-steps"></div>
+                <div class="params" id="hihat-params"></div>
+            </div>
+
+            <div class="instrument-row" data-instrument="tom">
+                <div class="instrument-label">TOM</div>
+                <div class="steps" id="tom-steps"></div>
+                <div class="params" id="tom-params"></div>
+            </div>
+        </div>
+
+        <!-- Controls Section -->
+        <div id="controls">
+            <div class="control-group">
+                <label>Kick Distortion</label>
+                <input type="range" id="fader1" min="0" max="100" value="0" class="fader">
+                <span class="value-display">0</span>
+            </div>
+
+            <div class="control-group">
+                <label>Snare Feedback</label>
+                <input type="range" id="fader2" min="0" max="100" value="0" class="fader">
+                <span class="value-display">0</span>
+            </div>
+
+            <div class="control-group">
+                <label>Hihat Sustain</label>
+                <input type="range" id="fader3" min="0" max="100" value="0" class="fader">
+                <span class="value-display">0</span>
+            </div>
+
+            <div class="control-group">
+                <label>Tom Pitch</label>
+                <input type="range" id="fader4" min="0" max="100" value="50" class="fader">
+                <span class="value-display">50</span>
+            </div>
+
+            <div class="control-group">
+                <button id="playButton" class="play-button">PLAY</button>
+                <div class="keyboard-hints">
+                    <span>F: Flower Mode</span>
+                    <span>R: Reset</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="audio-engine.js"></script>
+    <script src="visual-engine.js"></script>
+    <script src="sequencer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
