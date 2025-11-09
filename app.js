@@ -22,7 +22,7 @@ function updateStepVisuals(stepElement, instrument, stepIndex) {
     // Visual appearance based on velocity and active state
     const velocityPercent = velocity * 100;
 
-    if (velocityPercent >= 90) {
+    if (velocityPercent >= 80) {
         // Large: filled
         if (isActive) {
             stepElement.style.background = '#fff';
@@ -32,12 +32,12 @@ function updateStepVisuals(stepElement, instrument, stepIndex) {
             stepElement.style.border = '2px solid #4a5568';
         }
     } else {
-        // Small: stroke only
+        // Small: stroke only when active, gray filled when off
         if (isActive) {
             stepElement.style.background = 'transparent';
             stepElement.style.border = '2px solid #fff';
         } else {
-            stepElement.style.background = 'transparent';
+            stepElement.style.background = '#4a5568';
             stepElement.style.border = '2px solid #4a5568';
         }
     }
